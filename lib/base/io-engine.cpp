@@ -97,6 +97,8 @@ IoEngine::IoEngine() : m_IoContext(), m_KeepAlive(boost::asio::make_work_guard(m
 IoEngine::~IoEngine()
 {
 	for (auto& thread : m_Threads) {
+		(void)thread; // Silence compiler warnings about unused variable
+
 		boost::asio::post(m_IoContext, []() {
 			throw TerminateIoThread();
 		});

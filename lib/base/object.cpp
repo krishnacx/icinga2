@@ -125,7 +125,7 @@ Value Object::GetFieldByName(const String& field, bool sandboxed, const DebugInf
 	return GetField(fid);
 }
 
-void Object::SetFieldByName(const String& field, const Value& value, bool overrideFrozen, const DebugInfo& debugInfo)
+void Object::SetFieldByName(const String& field, const Value& value, bool, const DebugInfo& debugInfo)
 {
 	Type::Ptr type = GetReflectionType();
 
@@ -150,22 +150,22 @@ void Object::SetFieldByName(const String& field, const Value& value, bool overri
 	}
 }
 
-void Object::Validate(int types, const ValidationUtils& utils)
+void Object::Validate(int, const ValidationUtils&)
 {
 	/* Nothing to do here. */
 }
 
-void Object::ValidateField(int id, const Lazy<Value>& lvalue, const ValidationUtils& utils)
+void Object::ValidateField(int, const Lazy<Value>&, const ValidationUtils&)
 {
 	/* Nothing to do here. */
 }
 
-void Object::NotifyField(int id, const Value& cookie)
+void Object::NotifyField(int, const Value&)
 {
 	BOOST_THROW_EXCEPTION(std::runtime_error("Invalid field ID."));
 }
 
-Object::Ptr Object::NavigateField(int id) const
+Object::Ptr Object::NavigateField(int) const
 {
 	BOOST_THROW_EXCEPTION(std::runtime_error("Invalid field ID."));
 }

@@ -131,18 +131,18 @@ void CLICommand::Unregister(const std::vector<String>& name)
 	GetRegistry().erase(name);
 }
 
-std::vector<String> CLICommand::GetArgumentSuggestions(const String& argument, const String& word) const
+std::vector<String> CLICommand::GetArgumentSuggestions(const String&, const String&) const
 {
 	return std::vector<String>();
 }
 
-std::vector<String> CLICommand::GetPositionalSuggestions(const String& word) const
+std::vector<String> CLICommand::GetPositionalSuggestions(const String&) const
 {
 	return std::vector<String>();
 }
 
-void CLICommand::InitParameters(boost::program_options::options_description& visibleDesc,
-	boost::program_options::options_description& hiddenDesc) const
+void CLICommand::InitParameters(boost::program_options::options_description&,
+	boost::program_options::options_description&) const
 { }
 
 ImpersonationLevel CLICommand::GetImpersonationLevel() const

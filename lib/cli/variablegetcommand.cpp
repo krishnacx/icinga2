@@ -35,7 +35,7 @@ String VariableGetCommand::GetShortDescription() const
 }
 
 void VariableGetCommand::InitParameters(boost::program_options::options_description& visibleDesc,
-	boost::program_options::options_description& hiddenDesc) const
+	boost::program_options::options_description&) const
 {
 	visibleDesc.add_options()
 		("current", "Uses the current value (i.e. from the running process, rather than from the vars file)");

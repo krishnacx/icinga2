@@ -247,7 +247,8 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 	m_Header << "\t" << "int GetFieldId(const String& name) const override;" << std::endl;
 
 	m_Impl << "int TypeImpl<" << klass.Name << ">::GetFieldId(const String& name) const" << std::endl
-		<< "{" << std::endl;
+		<< "{" << std::endl
+		<< "\t(void)name; // Silence compiler warning about unused parameter" << std::endl;
 
 	if (!klass.Fields.empty()) {
 		m_Impl << "\t" << "int offset = ";
@@ -314,7 +315,8 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 	m_Header << "\t" << "Field GetFieldInfo(int id) const override;" << std::endl;
 
 	m_Impl << "Field TypeImpl<" << klass.Name << ">::GetFieldInfo(int id) const" << std::endl
-		<< "{" << std::endl;
+		<< "{" << std::endl
+		<< "\t(void)id; // Silence compiler warning about unused parameter" << std::endl;
 
 	if (!klass.Parent.empty())
 		m_Impl << "\t" << "int real_id = id - " << klass.Parent << "::TypeInstance->GetFieldCount();" << std::endl
@@ -404,7 +406,9 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 			<< "\t" << "void RegisterAttributeHandler(int fieldId, const Type::AttributeHandler& callback) override;" << std::endl;
 
 	m_Impl << "void TypeImpl<" << klass.Name << ">::RegisterAttributeHandler(int fieldId, const Type::AttributeHandler& callback)" << std::endl
-		<< "{" << std::endl;
+		<< "{" << std::endl
+		<< "\t(void)fieldId;" << std::endl
+		<< "\t(void)callback; // Silence compiler warnings about unused parameters" << std::endl;
 
 	if (!klass.Parent.empty())
 		m_Impl << "\t" << "int real_id = fieldId - " << klass.Parent << "::TypeInstance->GetFieldCount(); " << std::endl
@@ -454,7 +458,9 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 	m_Header << "\t" << "void Validate(int types, const ValidationUtils& utils) override;" << std::endl;
 
 	m_Impl << "void ObjectImpl<" << klass.Name << ">::Validate(int types, const ValidationUtils& utils)" << std::endl
-		<< "{" << std::endl;
+		<< "{" << std::endl
+		<< "\t(void)types;" << std::endl
+		<< "\t(void)utils; // Silence compiler warnings about unused parameters" << std::endl;
 
 	if (!klass.Parent.empty())
 		m_Impl << "\t" << klass.Parent << "::Validate(types, utils);" << std::endl << std::endl;
@@ -480,7 +486,9 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 		m_Header << "\t" << "void SimpleValidate" << field.GetFriendlyName() << "(const Lazy<" << field.Type.GetRealType() << ">& " << argName << ", const ValidationUtils& utils);" << std::endl;
 
 		m_Impl << "void ObjectImpl<" << klass.Name << ">::SimpleValidate" << field.GetFriendlyName() << "(const Lazy<" << field.Type.GetRealType() << ">& " << argName << ", const ValidationUtils& utils)" << std::endl
-			<< "{" << std::endl;
+			<< "{" << std::endl
+			<< "\t(void)" << argName << ";" << std::endl
+			<< "\t(void)utils; // Silence compiler warnings about unused parameters" << std::endl;
 
 		if (field.Attributes & FARequired) {
 			if (field.Type.GetRealType().find("::Ptr") != std::string::npos)
@@ -503,7 +511,8 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 		if (field.Type.ArrayRank > 0) {
 			m_Impl << "\t" << "if (avalue()) {" << std::endl
 				<< "\t\t" << "ObjectLock olock(avalue());" << std::endl
-				<< "\t\t" << "for (const Value& value : avalue()) {" << std::endl;
+				<< "\t\t" << "for (const Value& value : avalue()) {" << std::endl
+				<< "\t\t(void)value; // Silence compiler warning about unused variable" << std::endl;
 		}
 
 		std::string ftype = FieldTypeToIcingaName(field, true);
@@ -735,7 +744,8 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 				<< "\t" << "Object::Ptr NavigateField(int id) const override;" << std::endl;
 
 		m_Impl << "Object::Ptr ObjectImpl<" << klass.Name << ">::NavigateField(int id) const" << std::endl
-			<< "{" << std::endl;
+			<< "{" << std::endl
+			<< "\t(void)id; // Silence compiler warning about unused parameter" << std::endl;
 
 		if (!klass.Parent.empty())
 			m_Impl << "\t" << "int real_id = id - " << klass.Parent << "::TypeInstance->GetFieldCount(); " << std::endl
@@ -838,7 +848,8 @@ void ClassCompiler::HandleClass(const Klass& klass, const ClassDebugInfo&)
 				m_Header << ";" << std::endl;
 
 				m_Impl << "void ObjectImpl<" << klass.Name << ">::Set" << field.GetFriendlyName() << "(" << field.Type.GetArgumentType() << " value, bool suppress_events, const Value& cookie)" << std::endl
-					<< "{" << std::endl;
+					<< "{" << std::endl
+					<< "\t(void)value; // Silence compiler warning about unused parameter" << std::endl;
 
 				if (field.Type.IsName || !field.TrackAccessor.empty() || field.Attributes & FASignalWithOldValue)
 					m_Impl << "\t" << "Value oldValue = Get" << field.GetFriendlyName() << "();" << std::endl
@@ -1102,7 +1113,15 @@ void ClassCompiler::CodeGenValidator(const std::string& name, const std::string&
 		m_Impl << "const String& key, ";
 
 	m_Impl << fieldType.GetArgumentType() << " value, std::vector<String>& location, const ValidationUtils& utils)" << std::endl
-		<< "{" << std::endl;
+		<< "{" << std::endl
+		<< "\t(void)object;" << std::endl;
+
+	if (validatorType != ValidatorField)
+		m_Impl << "\t(void)key;" << std::endl;
+
+	m_Impl << "\t(void)value;" << std::endl
+		<< "\t(void)location;" << std::endl
+		<< "\t(void)utils; // Silence compiler warnings about unused parameters" << std::endl;
 
 	if (validatorType == ValidatorField) {
 		bool required = false;

@@ -28,7 +28,7 @@ public:
 		});
 	}
 
-	void FindTargets(const String& type,
+	void FindTargets(const String&,
 		const std::function<void (const Value&)>& addTarget) const override
 	{
 		{
@@ -40,7 +40,7 @@ public:
 		}
 	}
 
-	Value GetTargetByName(const String& type, const String& name) const override
+	Value GetTargetByName(const String&, const String& name) const override
 	{
 		return GetTargetForVar(name, ScriptGlobal::Get(name));
 	}
@@ -50,21 +50,21 @@ public:
 		return type == "Variable";
 	}
 
-	String GetPluralName(const String& type) const override
+	String GetPluralName(const String&) const override
 	{
 		return "variables";
 	}
 };
 
 bool VariableQueryHandler::HandleRequest(
-	AsioTlsStream& stream,
+	AsioTlsStream&,
 	const ApiUser::Ptr& user,
 	boost::beast::http::request<boost::beast::http::string_body>& request,
 	const Url::Ptr& url,
 	boost::beast::http::response<boost::beast::http::string_body>& response,
 	const Dictionary::Ptr& params,
-	boost::asio::yield_context& yc,
-	HttpServerConnection& server
+	boost::asio::yield_context&,
+	HttpServerConnection&
 )
 {
 	namespace http = boost::beast::http;

@@ -23,7 +23,7 @@ String PKIVerifyCommand::GetShortDescription() const
 }
 
 void PKIVerifyCommand::InitParameters(boost::program_options::options_description& visibleDesc,
-	boost::program_options::options_description& hiddenDesc) const
+	boost::program_options::options_description&) const
 {
 	visibleDesc.add_options()
 		("cn", po::value<std::string>(), "Common Name (optional). Use with '--cert' to check the CN in the certificate.")
@@ -45,7 +45,7 @@ std::vector<String> PKIVerifyCommand::GetArgumentSuggestions(const String& argum
  *
  * @returns An exit status.
  */
-int PKIVerifyCommand::Run(const boost::program_options::variables_map& vm, const std::vector<std::string>& ap) const
+int PKIVerifyCommand::Run(const boost::program_options::variables_map& vm, const std::vector<std::string>&) const
 {
 	String cn, certFile, caCertFile, crlFile;
 

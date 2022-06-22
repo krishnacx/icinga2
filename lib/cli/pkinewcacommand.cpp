@@ -23,7 +23,7 @@ String PKINewCACommand::GetShortDescription() const
  *
  * @returns An exit status.
  */
-int PKINewCACommand::Run(const boost::program_options::variables_map& vm, const std::vector<std::string>& ap) const
+int PKINewCACommand::Run(const boost::program_options::variables_map&, const std::vector<std::string>&) const
 {
 	return PkiUtility::NewCa();
 }

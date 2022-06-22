@@ -29,7 +29,7 @@ void Stream::Shutdown()
 	BOOST_THROW_EXCEPTION(std::runtime_error("Stream does not support Shutdown()."));
 }
 
-size_t Stream::Peek(void *buffer, size_t count, bool allow_partial)
+size_t Stream::Peek(void*, size_t, bool)
 {
 	BOOST_THROW_EXCEPTION(std::runtime_error("Stream does not support Peek()."));
 }

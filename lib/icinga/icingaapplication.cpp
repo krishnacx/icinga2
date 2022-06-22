@@ -66,7 +66,7 @@ void IcingaApplication::StaticInitialize()
 
 REGISTER_STATSFUNCTION(IcingaApplication, &IcingaApplication::StatsFunc);
 
-void IcingaApplication::StatsFunc(const Dictionary::Ptr& status, const Array::Ptr& perfdata)
+void IcingaApplication::StatsFunc(const Dictionary::Ptr& status, const Array::Ptr&)
 {
 	DictionaryData nodes;
 
@@ -316,12 +316,12 @@ String IcingaApplication::GetEnvironment() const
 	return Application::GetAppEnvironment();
 }
 
-void IcingaApplication::SetEnvironment(const String& value, bool suppress_events, const Value& cookie)
+void IcingaApplication::SetEnvironment(const String& value, bool, const Value&)
 {
 	Application::SetAppEnvironment(value);
 }
 
-void IcingaApplication::ValidateVars(const Lazy<Dictionary::Ptr>& lvalue, const ValidationUtils& utils)
+void IcingaApplication::ValidateVars(const Lazy<Dictionary::Ptr>& lvalue, const ValidationUtils&)
 {
 	MacroProcessor::ValidateCustomVars(this, lvalue());
 }

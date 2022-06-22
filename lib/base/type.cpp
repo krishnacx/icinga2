@@ -146,7 +146,7 @@ int Type::GetActivationPriority() const
 	return 0;
 }
 
-void Type::RegisterAttributeHandler(int fieldId, const AttributeHandler& callback)
+void Type::RegisterAttributeHandler(int, const AttributeHandler&)
 {
 	throw std::runtime_error("Invalid field ID.");
 }

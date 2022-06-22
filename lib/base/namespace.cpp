@@ -142,7 +142,7 @@ EmbeddedNamespaceValue::EmbeddedNamespaceValue(const Value& value)
 	: m_Value(value)
 { }
 
-Value EmbeddedNamespaceValue::Get(const DebugInfo& debugInfo) const
+Value EmbeddedNamespaceValue::Get(const DebugInfo&) const
 {
 	return m_Value;
 }
@@ -160,7 +160,7 @@ void ConstEmbeddedNamespaceValue::Set(const Value& value, bool overrideFrozen, c
 	EmbeddedNamespaceValue::Set(value, overrideFrozen, debugInfo);
 }
 
-void NamespaceBehavior::Register(const Namespace::Ptr& ns, const String& field, const Value& value, bool overrideFrozen, const DebugInfo& debugInfo) const
+void NamespaceBehavior::Register(const Namespace::Ptr& ns, const String& field, const Value& value, bool, const DebugInfo&) const
 {
 	ns->SetAttribute(field, new EmbeddedNamespaceValue(value));
 }

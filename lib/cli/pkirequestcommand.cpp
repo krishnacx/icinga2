@@ -22,7 +22,7 @@ String PKIRequestCommand::GetShortDescription() const
 }
 
 void PKIRequestCommand::InitParameters(boost::program_options::options_description& visibleDesc,
-	boost::program_options::options_description& hiddenDesc) const
+	boost::program_options::options_description&) const
 {
 	visibleDesc.add_options()
 		("key", po::value<std::string>(), "Key file path (input)")
@@ -51,7 +51,7 @@ std::vector<String> PKIRequestCommand::GetArgumentSuggestions(const String& argu
  *
  * @returns An exit status.
  */
-int PKIRequestCommand::Run(const boost::program_options::variables_map& vm, const std::vector<std::string>& ap) const
+int PKIRequestCommand::Run(const boost::program_options::variables_map& vm, const std::vector<std::string>&) const
 {
 	if (!vm.count("host")) {
 		Log(LogCritical, "cli", "Icinga 2 host (--host) must be specified.");

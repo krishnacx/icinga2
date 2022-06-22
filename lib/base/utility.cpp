@@ -427,7 +427,7 @@ static bool GlobHelper(const String& pathSpec, int type, std::vector<String>& fi
 #endif /* _WIN32 */
 
 #ifndef _WIN32
-static int GlobErrorHandler(const char *epath, int eerrno)
+static int GlobErrorHandler(const char*, int eerrno)
 {
 	if (eerrno == ENOTDIR)
 		return 0;
