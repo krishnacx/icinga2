@@ -137,7 +137,7 @@ bool VariableExpression::GetReference(ScriptFrame& frame, bool, Value *parent, S
 
 		if (dhint && *dhint)
 			*dhint = new DebugHint((*dhint)->GetChild(m_Variable));
-	} else if (VMOps::FindVarImportRef(frame, m_Imports, m_Variable, parent, m_DebugInfo)) {
+	} else if (VMOps::FindVarImportRef(frame, m_Imports, m_Variable, parent)) {
 		return true;
 	} else if (ScriptGlobal::Exists(m_Variable)) {
 		*parent = ScriptGlobal::GetGlobals();
@@ -471,7 +471,7 @@ ExpressionResult FunctionCallExpression::DoEvaluate(ScriptFrame& frame, DebugHin
 			arguments.push_back(argres.GetValue());
 		}
 
-		return VMOps::ConstructorCall(vfunc, arguments, m_DebugInfo);
+		return VMOps::ConstructorCall(vfunc, arguments);
 	}
 
 	if (!vfunc.IsObjectType<Function>())
@@ -491,7 +491,7 @@ ExpressionResult FunctionCallExpression::DoEvaluate(ScriptFrame& frame, DebugHin
 		arguments.push_back(argres.GetValue());
 	}
 
-	return VMOps::FunctionCall(frame, self, func, arguments);
+	return VMOps::FunctionCall(self, func, arguments);
 }
 
 ExpressionResult ArrayExpression::DoEvaluate(ScriptFrame& frame, DebugHint*) const
