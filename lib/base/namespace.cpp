@@ -160,6 +160,11 @@ void ConstEmbeddedNamespaceValue::Set(const Value& value, bool overrideFrozen, c
 	EmbeddedNamespaceValue::Set(value, overrideFrozen, debugInfo);
 }
 
+// A derived class instance destroyed via pointer to the base class requires the base class to provide a virtual destructor.
+NamespaceBehavior::~NamespaceBehavior()
+{
+}
+
 void NamespaceBehavior::Register(const Namespace::Ptr& ns, const String& field, const Value& value, bool, const DebugInfo&) const
 {
 	ns->SetAttribute(field, new EmbeddedNamespaceValue(value));

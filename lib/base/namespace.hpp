@@ -45,6 +45,8 @@ class Namespace;
 
 struct NamespaceBehavior
 {
+	virtual ~NamespaceBehavior();
+
 	virtual void Register(const boost::intrusive_ptr<Namespace>& ns, const String& field, const Value& value, bool overrideFrozen, const DebugInfo& debugInfo) const;
 	virtual void Remove(const boost::intrusive_ptr<Namespace>& ns, const String& field, bool overrideFrozen);
 };

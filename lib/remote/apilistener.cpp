@@ -853,7 +853,7 @@ void ApiListener::SyncClient(const JsonRpcConnection::Ptr& aclient, const Endpoi
 		Zone::Ptr myZone = Zone::GetLocalZone();
 		auto parent (myZone->GetParent());
 
-		if (parent == eZone || !parent && eZone == myZone) {
+		if (parent == eZone || (!parent && eZone == myZone)) {
 			JsonRpcConnection::SendCertificateRequest(aclient, nullptr, String());
 
 			if (Utility::PathExists(ApiListener::GetCertificateRequestsDir())) {
