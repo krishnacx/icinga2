@@ -18,6 +18,11 @@ jobs:
 
     runs-on: windows-2019
 
+    concurrency:
+      # This makes it unique per workflow run for either PRs (head_ref) or master/tag (run_id)
+      group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+      cancel-in-progress: true
+
     env:
       BITS: '${{ matrix.bits }}'
       ICINGA_BUILD_TYPE: snapshot

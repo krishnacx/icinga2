@@ -20,14 +20,12 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
-      - name: Cancel previous jobs for the same PR
-        if: "github.event_name == 'pull_request'"
-        uses: styfle/cancel-workflow-action@89f242ee29e10c53a841bfe71cc0ce7b2f065abc
-        with:
-          workflow_id: deb.yml,docker.yml,raspbian.yml,rpm.yml,windows.yml
-          access_token: ${{ secrets.GITHUB_TOKEN }}
+    concurrency:
+      # This makes it unique per workflow run for either PRs (head_ref) or master/tag (run_id)
+      group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+      cancel-in-progress: true
 
+    steps:
       - name: Checkout HEAD
         uses: actions/checkout@v1
 
