@@ -1,6 +1,7 @@
 /* Icinga 2 | (c) 2012 Icinga GmbH | GPLv2+ */
 
 #include "remote/createobjecthandler.hpp"
+#include "remote/configobjectslock.hpp"
 #include "remote/configobjectutility.hpp"
 #include "remote/httputility.hpp"
 #include "remote/jsonrpcconnection.hpp"
@@ -111,6 +112,19 @@ bool CreateObjectHandler::HandleRequest(
 		result1->Set("status", "Object could not be created.");
 
 		response.result(http::status::internal_server_error);
+		HttpUtility::SendJsonBody(response, params, result);
+
+		return true;
+	}
+
+	ConfigObjectsSharedLock lock;
+
+	if (!lock.OwnsLock()) {
+		result1->Set("errors", new Array({"Icinga is reloading"}));
+		result1->Set("code", 503);
+		result1->Set("status", "Object could not be created.");
+
+		response.result(http::status::service_unavailable);
 		HttpUtility::SendJsonBody(response, params, result);
 
 		return true;

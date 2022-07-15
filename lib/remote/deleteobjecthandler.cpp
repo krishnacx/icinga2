@@ -1,6 +1,7 @@
 /* Icinga 2 | (c) 2012 Icinga GmbH | GPLv2+ */
 
 #include "remote/deleteobjecthandler.hpp"
+#include "remote/configobjectslock.hpp"
 #include "remote/configobjectutility.hpp"
 #include "remote/httputility.hpp"
 #include "remote/filterutility.hpp"
@@ -65,6 +66,25 @@ bool DeleteObjectHandler::HandleRequest(
 
 	bool cascade = HttpUtility::GetLastParameter(params, "cascade");
 	bool verbose = HttpUtility::GetLastParameter(params, "verbose");
+
+	ConfigObjectsSharedLock lock;
+
+	if (!lock.OwnsLock()) {
+		Dictionary::Ptr result1 = new Dictionary();
+
+		Dictionary::Ptr result = new Dictionary({
+			{ "results", new Array({ result1 }) }
+		});
+
+		result1->Set("errors", new Array({"Icinga is reloading"}));
+		result1->Set("code", 503);
+		result1->Set("status", "Objects could not be deleted.");
+
+		response.result(http::status::service_unavailable);
+		HttpUtility::SendJsonBody(response, params, result);
+
+		return true;
+	}
 
 	ArrayData results;
 

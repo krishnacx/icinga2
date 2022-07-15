@@ -1,6 +1,7 @@
 /* Icinga 2 | (c) 2012 Icinga GmbH | GPLv2+ */
 
 #include "remote/modifyobjecthandler.hpp"
+#include "remote/configobjectslock.hpp"
 #include "remote/httputility.hpp"
 #include "remote/filterutility.hpp"
 #include "remote/apiaction.hpp"
@@ -76,6 +77,25 @@ bool ModifyObjectHandler::HandleRequest(
 
 	if (params)
 		verbose = HttpUtility::GetLastParameter(params, "verbose");
+
+	ConfigObjectsSharedLock lock;
+
+	if (!lock.OwnsLock()) {
+		Dictionary::Ptr result1 = new Dictionary();
+
+		Dictionary::Ptr result = new Dictionary({
+			{ "results", new Array({ result1 }) }
+		});
+
+		result1->Set("errors", new Array({"Icinga is reloading"}));
+		result1->Set("code", 503);
+		result1->Set("status", "Attributes could not be set.");
+
+		response.result(http::status::service_unavailable);
+		HttpUtility::SendJsonBody(response, params, result);
+
+		return true;
+	}
 
 	ArrayData results;
 
