@@ -14,6 +14,10 @@
 #include <typeinfo>
 #include <vector>
 
+#ifdef _WIN32
+#	include <io.h>
+#endif /*_WIN32*/
+
 namespace icinga
 {
 
@@ -132,7 +136,8 @@ public:
 
 	static String ValidateUTF8(const String& input);
 
-	static String CreateTempFile(const String& path, int mode, std::fstream& fp);
+	template<class Fstream>
+	static String CreateTempFile(const String& path, int mode, Fstream& fp);
 
 #ifdef _WIN32
 	static String GetIcingaInstallPath();
@@ -196,6 +201,47 @@ private:
 	static boost::thread_specific_ptr<String> m_ThreadName;
 	static boost::thread_specific_ptr<unsigned int> m_RandSeed;
 };
+
+template<class Fstream>
+String Utility::CreateTempFile(const String& path, int mode, Fstream& fp)
+{
+	std::vector<char> targetPath(path.Begin(), path.End());
+	targetPath.push_back('\0');
+
+	int fd;
+#ifndef _WIN32
+	fd = mkstemp(&targetPath[0]);
+#else /* _WIN32 */
+	fd = MksTemp(&targetPath[0]);
+#endif /*_WIN32*/
+
+	if (fd < 0) {
+		BOOST_THROW_EXCEPTION(posix_error()
+			<< boost::errinfo_api_function("mkstemp")
+			<< boost::errinfo_errno(errno)
+			<< boost::errinfo_file_name(path));
+	}
+
+	try {
+		fp.open(&targetPath[0], std::ios_base::trunc | std::ios_base::out);
+	} catch (...) {
+		close(fd);
+		throw;
+	}
+
+	close(fd);
+
+	String resultPath = String(targetPath.begin(), targetPath.end() - 1);
+
+	if (chmod(resultPath.CStr(), mode) < 0) {
+		BOOST_THROW_EXCEPTION(posix_error()
+			<< boost::errinfo_api_function("chmod")
+			<< boost::errinfo_errno(errno)
+			<< boost::errinfo_file_name(resultPath));
+	}
+
+	return resultPath;
+}
 
 }
 
