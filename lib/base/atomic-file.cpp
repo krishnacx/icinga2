@@ -16,8 +16,35 @@ using namespace icinga;
 
 AtomicFile::AtomicFile(String path, int mode) : m_Path(std::move(path))
 {
+	m_TempFilename = m_Path + ".tmp.XXXXXX";
+	int fd;
+
+#ifdef _WIN32
+	fd = Utility::MksTemp(&m_TempFilename[0]);
+#else /* _WIN32 */
+	fd = mkstemp(&m_TempFilename[0]);
+#endif /* _WIN32 */
+
+	if (fd < 0) {
+		auto error (errno);
+
+		BOOST_THROW_EXCEPTION(posix_error()
+			<< boost::errinfo_api_function("mkstemp")
+			<< boost::errinfo_errno(error)
+			<< boost::errinfo_file_name(m_TempFilename));
+	}
+
 	exceptions(failbit | badbit);
-	m_TempFilename = Utility::CreateTempFile(m_Path + ".tmp.XXXXXX", mode, *this);
+	open(boost::iostreams::file_descriptor(fd, boost::iostreams::close_handle));
+
+	if (chmod(m_TempFilename.CStr(), mode) < 0) {
+		auto error (errno);
+
+		BOOST_THROW_EXCEPTION(posix_error()
+			<< boost::errinfo_api_function("chmod")
+			<< boost::errinfo_errno(error)
+			<< boost::errinfo_file_name(m_TempFilename));
+	}
 }
 
 AtomicFile::~AtomicFile()
