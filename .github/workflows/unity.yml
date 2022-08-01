@@ -1,0 +1,56 @@
+name: unity
+
+on:
+  push:
+    branches:
+      - master
+      - 'support/*'
+  pull_request: {}
+
+jobs:
+  unity:
+    name: Unity build
+
+    strategy:
+      fail-fast: false
+      matrix:
+        onoff:
+          - ON
+          - OFF
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Cancel previous jobs for the same PR
+        if: "github.event_name == 'pull_request'"
+        uses: styfle/cancel-workflow-action@89f242ee29e10c53a841bfe71cc0ce7b2f065abc
+        with:
+          workflow_id: deb.yml,docker.yml,raspbian.yml,rpm.yml,unity.yml,windows.yml
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout HEAD
+        uses: actions/checkout@v1
+
+      - name: Restore/backup ccache
+        id: ccache
+        uses: actions/cache@v1
+        with:
+          path: ccache
+          key: |-
+            unity/${{ matrix.onoff }}-ccache-${{ hashFiles('ccache') }}
+
+      - run: sudo apt-get install -y g++ libboost-all-dev libedit-dev ninja-build
+      - run: sudo apt-get install -y ccache
+
+      - run: >-
+          cmake
+          -GNinja
+          -DCMAKE_C_COMPILER=/usr/lib/ccache/gcc
+          -DCMAKE_CXX_COMPILER=/usr/lib/ccache/g++
+          -DCMAKE_BUILD_TYPE=Debug
+          -DICINGA2_UNITY_BUILD=${{ matrix.onoff }}
+          -DICINGA2_USER=$(id -un)
+          -DICINGA2_GROUP=$(id -gn)
+          .
+
+      - run: 'CCACHE_DIR="$(pwd)/ccache" ninja'
