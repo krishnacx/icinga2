@@ -4,6 +4,7 @@
 #define CONFIGCOMPILERCONTEXT_H
 
 #include "config/i2-config.hpp"
+#include "base/atomic-file.hpp"
 #include "base/dictionary.hpp"
 #include <fstream>
 #include <mutex>
@@ -25,9 +26,7 @@ public:
 	static ConfigCompilerContext *GetInstance();
 
 private:
-	String m_ObjectsPath;
-	String m_ObjectsTempFile;
-	std::fstream *m_ObjectsFP{nullptr};
+	AtomicFile *m_ObjectsFP{nullptr};
 
 	mutable std::mutex m_Mutex;
 };
