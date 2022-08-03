@@ -2530,6 +2530,7 @@ void IcingaDB::SendCustomVarsChanged(const ConfigObject::Ptr& object, const Dict
 Dictionary::Ptr IcingaDB::SerializeState(const Checkable::Ptr& checkable)
 {
 	Dictionary::Ptr attrs = new Dictionary();
+	ObjectLock attrsLock (attrs);
 
 	Host::Ptr host;
 	Service::Ptr service;
