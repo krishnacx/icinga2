@@ -126,9 +126,11 @@ void IcingaDB::ConfigStaticInitialize()
 		IcingaDB::NewCheckResultHandler(checkable);
 	});
 
+	/*
 	Checkable::OnNextCheckChanged.connect([](const Checkable::Ptr& checkable, const Value&) {
 		IcingaDB::NextCheckChangedHandler(checkable);
 	});
+	*/
 
 	Service::OnHostProblemChanged.connect([](const Service::Ptr& service, const CheckResult::Ptr&, const MessageOrigin::Ptr&) {
 		IcingaDB::HostProblemChangedHandler(service);
