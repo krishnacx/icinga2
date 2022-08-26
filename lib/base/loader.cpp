@@ -15,21 +15,23 @@ boost::thread_specific_ptr<std::priority_queue<DeferredInitializer> >& Loader::G
 
 void Loader::ExecuteDeferredInitializers()
 {
-	if (!GetDeferredInitializers().get())
+	auto& initializers = GetDeferredInitializers();
+	if (!initializers.get())
 		return;
 
-	while (!GetDeferredInitializers().get()->empty()) {
-		DeferredInitializer initializer = GetDeferredInitializers().get()->top();
-		GetDeferredInitializers().get()->pop();
+	while (!initializers->empty()) {
+		DeferredInitializer initializer = initializers->top();
+		initializers->pop();
 		initializer();
 	}
 }
 
 void Loader::AddDeferredInitializer(const std::function<void()>& callback, int priority)
 {
-	if (!GetDeferredInitializers().get())
-		GetDeferredInitializers().reset(new std::priority_queue<DeferredInitializer>());
+	auto& initializers = GetDeferredInitializers();
+	if (!initializers.get())
+		initializers.reset(new std::priority_queue<DeferredInitializer>());
 
-	GetDeferredInitializers().get()->push(DeferredInitializer(callback, priority));
+	initializers->push(DeferredInitializer(callback, priority));
 }
 

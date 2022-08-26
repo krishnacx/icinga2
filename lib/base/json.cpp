@@ -463,7 +463,7 @@ template<bool prettyPrint>
 inline
 void JsonEncoder<prettyPrint>::AppendJson(nlohmann::json json)
 {
-	nlohmann::detail::serializer<nlohmann::json>(nlohmann::detail::output_adapter<char>(m_Result), ' ').dump(std::move(json), prettyPrint, true, 0);
+	nlohmann::detail::serializer<nlohmann::json>(nlohmann::detail::output_adapter<char>(m_Result), ' ').dump(json, prettyPrint, true, 0);
 }
 
 template<bool prettyPrint>
