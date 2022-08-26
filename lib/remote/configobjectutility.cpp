@@ -76,7 +76,7 @@ void ConfigObjectUtility::RepairPackage(const String& package)
 
 	String foundActiveStage;
 
-	for (fs::recursive_directory_iterator it(path); it != end; it++) {
+	for (fs::recursive_directory_iterator it(path); it != end; ++it) {
 		boost::system::error_code ec;
 
 		const fs::path d = *it;
