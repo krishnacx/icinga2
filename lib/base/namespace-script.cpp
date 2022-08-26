@@ -63,7 +63,7 @@ static Array::Ptr NamespaceValues()
 	ArrayData values;
 	ObjectLock olock(self);
 	for (const Namespace::Pair& kv : self) {
-		values.push_back(kv.second->Get());
+		values.emplace_back(kv.second->Get());
 	}
 	return new Array(std::move(values));
 }

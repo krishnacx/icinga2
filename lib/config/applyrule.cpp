@@ -75,7 +75,7 @@ void ApplyRule::AddRule(const String& sourceType, const String& targetType, cons
 	const Expression::Ptr& expression, const Expression::Ptr& filter, const String& package, const String& fkvar,
 	const String& fvvar, const Expression::Ptr& fterm, bool ignoreOnError, const DebugInfo& di, const Dictionary::Ptr& scope)
 {
-	m_Rules[sourceType].push_back(ApplyRule(targetType, name, expression, filter, package, fkvar, fvvar, fterm, ignoreOnError, di, scope));
+	m_Rules[sourceType].emplace_back(ApplyRule(targetType, name, expression, filter, package, fkvar, fvvar, fterm, ignoreOnError, di, scope));
 }
 
 bool ApplyRule::EvaluateFilter(ScriptFrame& frame) const
