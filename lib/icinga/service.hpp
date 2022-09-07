@@ -54,8 +54,8 @@ protected:
 private:
 	Host::Ptr m_Host;
 
-	static bool EvaluateApplyRuleInstance(const Host::Ptr& host, const String& name, ScriptFrame& frame, const ApplyRule& rule);
-	static bool EvaluateApplyRule(const Host::Ptr& host, const ApplyRule& rule);
+	static bool EvaluateApplyRuleInstance(const Host::Ptr& host, const String& name, ScriptFrame& frame, const ApplyRule::Ptr& rule);
+	static bool EvaluateApplyRule(const Host::Ptr& host, const ApplyRule::Ptr& rule);
 };
 
 std::pair<Host::Ptr, Service::Ptr> GetHostService(const Checkable::Ptr& checkable);

@@ -16,12 +16,12 @@ INITIALIZE_ONCE([]() {
 	ApplyRule::RegisterType("Service", { "Host" });
 });
 
-bool Service::EvaluateApplyRuleInstance(const Host::Ptr& host, const String& name, ScriptFrame& frame, const ApplyRule& rule)
+bool Service::EvaluateApplyRuleInstance(const Host::Ptr& host, const String& name, ScriptFrame& frame, const ApplyRule::Ptr& rule)
 {
-	if (!rule.EvaluateFilter(frame))
+	if (!rule->EvaluateFilter(frame))
 		return false;
 
-	DebugInfo di = rule.GetDebugInfo();
+	DebugInfo di = rule->GetDebugInfo();
 
 #ifdef _DEBUG
 	Log(LogDebug, "Service")
@@ -32,7 +32,7 @@ bool Service::EvaluateApplyRuleInstance(const Host::Ptr& host, const String& nam
 	builder.SetType(Service::TypeInstance);
 	builder.SetName(name);
 	builder.SetScope(frame.Locals->ShallowClone());
-	builder.SetIgnoreOnError(rule.GetIgnoreOnError());
+	builder.SetIgnoreOnError(rule->GetIgnoreOnError());
 
 	builder.AddExpression(new ImportDefaultTemplatesExpression());
 
@@ -45,9 +45,9 @@ bool Service::EvaluateApplyRuleInstance(const Host::Ptr& host, const String& nam
 	if (!zone.IsEmpty())
 		builder.AddExpression(new SetExpression(MakeIndexer(ScopeThis, "zone"), OpSetLiteral, MakeLiteral(zone), di));
 
-	builder.AddExpression(new SetExpression(MakeIndexer(ScopeThis, "package"), OpSetLiteral, MakeLiteral(rule.GetPackage()), di));
+	builder.AddExpression(new SetExpression(MakeIndexer(ScopeThis, "package"), OpSetLiteral, MakeLiteral(rule->GetPackage()), di));
 
-	builder.AddExpression(new OwnedExpression(rule.GetExpression()));
+	builder.AddExpression(new OwnedExpression(rule->GetExpression()));
 
 	ConfigItem::Ptr serviceItem = builder.Compile();
 	serviceItem->Register();
@@ -55,24 +55,24 @@ bool Service::EvaluateApplyRuleInstance(const Host::Ptr& host, const String& nam
 	return true;
 }
 
-bool Service::EvaluateApplyRule(const Host::Ptr& host, const ApplyRule& rule)
+bool Service::EvaluateApplyRule(const Host::Ptr& host, const ApplyRule::Ptr& rule)
 {
-	DebugInfo di = rule.GetDebugInfo();
+	DebugInfo di = rule->GetDebugInfo();
 
 	std::ostringstream msgbuf;
 	msgbuf << "Evaluating 'apply' rule (" << di << ")";
 	CONTEXT(msgbuf.str());
 
 	ScriptFrame frame(true);
-	if (rule.GetScope())
-		rule.GetScope()->CopyTo(frame.Locals);
+	if (rule->GetScope())
+		rule->GetScope()->CopyTo(frame.Locals);
 	frame.Locals->Set("host", host);
 
 	Value vinstances;
 
-	if (rule.GetFTerm()) {
+	if (rule->GetFTerm()) {
 		try {
-			vinstances = rule.GetFTerm()->Evaluate(frame);
+			vinstances = rule->GetFTerm()->Evaluate(frame);
 		} catch (const std::exception&) {
 			/* Silently ignore errors here and assume there are no instances. */
 			return false;
@@ -84,17 +84,17 @@ bool Service::EvaluateApplyRule(const Host::Ptr& host, const ApplyRule& rule)
 	bool match = false;
 
 	if (vinstances.IsObjectType<Array>()) {
-		if (!rule.GetFVVar().IsEmpty())
+		if (!rule->GetFVVar().IsEmpty())
 			BOOST_THROW_EXCEPTION(ScriptError("Dictionary iterator requires value to be a dictionary.", di));
 
 		Array::Ptr arr = vinstances;
 
 		ObjectLock olock(arr);
 		for (const Value& instance : arr) {
-			String name = rule.GetName();
+			String name = rule->GetName();
 
-			if (!rule.GetFKVar().IsEmpty()) {
-				frame.Locals->Set(rule.GetFKVar(), instance);
+			if (!rule->GetFKVar().IsEmpty()) {
+				frame.Locals->Set(rule->GetFKVar(), instance);
 				name += instance;
 			}
 
@@ -102,16 +102,16 @@ bool Service::EvaluateApplyRule(const Host::Ptr& host, const ApplyRule& rule)
 				match = true;
 		}
 	} else if (vinstances.IsObjectType<Dictionary>()) {
-		if (rule.GetFVVar().IsEmpty())
+		if (rule->GetFVVar().IsEmpty())
 			BOOST_THROW_EXCEPTION(ScriptError("Array iterator requires value to be an array.", di));
 
 		Dictionary::Ptr dict = vinstances;
 
 		for (const String& key : dict->GetKeys()) {
-			frame.Locals->Set(rule.GetFKVar(), key);
-			frame.Locals->Set(rule.GetFVVar(), dict->Get(key));
+			frame.Locals->Set(rule->GetFKVar(), key);
+			frame.Locals->Set(rule->GetFVVar(), dict->Get(key));
 
-			if (EvaluateApplyRuleInstance(host, rule.GetName() + key, frame, rule))
+			if (EvaluateApplyRuleInstance(host, rule->GetName() + key, frame, rule))
 				match = true;
 		}
 	}
@@ -121,10 +121,10 @@ bool Service::EvaluateApplyRule(const Host::Ptr& host, const ApplyRule& rule)
 
 void Service::EvaluateApplyRules(const Host::Ptr& host)
 {
-	for (ApplyRule& rule : ApplyRule::GetRules("Service")) {
+	for (const ApplyRule::Ptr& rule : ApplyRule::GetRules("Service")) {
 		CONTEXT("Evaluating 'apply' rules for host '" + host->GetName() + "'");
 
 		if (EvaluateApplyRule(host, rule))
-			rule.AddMatch();
+			rule->AddMatch();
 	}
 }

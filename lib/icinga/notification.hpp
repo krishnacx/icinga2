@@ -13,6 +13,7 @@
 #include "remote/endpoint.hpp"
 #include "remote/messageorigin.hpp"
 #include "base/array.hpp"
+#include "config/applyrule.hpp"
 
 namespace icinga
 {
@@ -118,8 +119,8 @@ private:
 
 	void ExecuteNotificationHelper(NotificationType type, const User::Ptr& user, const CheckResult::Ptr& cr, bool force, const String& author = "", const String& text = "");
 
-	static bool EvaluateApplyRuleInstance(const intrusive_ptr<Checkable>& checkable, const String& name, ScriptFrame& frame, const ApplyRule& rule);
-	static bool EvaluateApplyRule(const intrusive_ptr<Checkable>& checkable, const ApplyRule& rule);
+	static bool EvaluateApplyRuleInstance(const intrusive_ptr<Checkable>& checkable, const String& name, ScriptFrame& frame, const ApplyRule::Ptr& rule);
+	static bool EvaluateApplyRule(const intrusive_ptr<Checkable>& checkable, const ApplyRule::Ptr& rule);
 
 	static std::map<String, int> m_StateFilterMap;
 	static std::map<String, int> m_TypeFilterMap;
