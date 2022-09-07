@@ -6,6 +6,7 @@
 #include "config/i2-config.hpp"
 #include "config/expression.hpp"
 #include "base/debuginfo.hpp"
+#include <atomic>
 
 namespace icinga
 {
@@ -61,7 +62,7 @@ private:
 	bool m_IgnoreOnError;
 	DebugInfo m_DebugInfo;
 	Dictionary::Ptr m_Scope;
-	bool m_HasMatches;
+	std::atomic<bool> m_HasMatches;
 
 	static TypeMap m_Types;
 	static RuleMap m_Rules;
