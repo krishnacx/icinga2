@@ -19,7 +19,7 @@ public:
 	DECLARE_PTR_TYPEDEFS(ApplyRule);
 
 	typedef std::map<String, std::vector<String> > TypeMap;
-	typedef std::map<String, std::vector<ApplyRule> > RuleMap;
+	typedef std::map<String, std::vector<ApplyRule::Ptr>> RuleMap;
 
 	String GetTargetType() const;
 	String GetName() const;
@@ -40,7 +40,7 @@ public:
 	static void AddRule(const String& sourceType, const String& targetType, const String& name, const Expression::Ptr& expression,
 		const Expression::Ptr& filter, const String& package, const String& fkvar, const String& fvvar, const Expression::Ptr& fterm,
 		bool ignoreOnError, const DebugInfo& di, const Dictionary::Ptr& scope);
-	static std::vector<ApplyRule>& GetRules(const String& type);
+	static std::vector<ApplyRule::Ptr>& GetRules(const String& type);
 
 	static void RegisterType(const String& sourceType, const std::vector<String>& targetTypes);
 	static bool IsValidSourceType(const String& sourceType);

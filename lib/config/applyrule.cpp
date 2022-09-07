@@ -75,7 +75,7 @@ void ApplyRule::AddRule(const String& sourceType, const String& targetType, cons
 	const Expression::Ptr& expression, const Expression::Ptr& filter, const String& package, const String& fkvar,
 	const String& fvvar, const Expression::Ptr& fterm, bool ignoreOnError, const DebugInfo& di, const Dictionary::Ptr& scope)
 {
-	m_Rules[sourceType].push_back(ApplyRule(targetType, name, expression, filter, package, fkvar, fvvar, fterm, ignoreOnError, di, scope));
+	m_Rules[sourceType].emplace_back(new ApplyRule(targetType, name, expression, filter, package, fkvar, fvvar, fterm, ignoreOnError, di, scope));
 }
 
 bool ApplyRule::EvaluateFilter(ScriptFrame& frame) const
@@ -131,11 +131,11 @@ bool ApplyRule::HasMatches() const
 	return m_HasMatches;
 }
 
-std::vector<ApplyRule>& ApplyRule::GetRules(const String& type)
+std::vector<ApplyRule::Ptr>& ApplyRule::GetRules(const String& type)
 {
 	auto it = m_Rules.find(type);
 	if (it == m_Rules.end()) {
-		static std::vector<ApplyRule> emptyList;
+		static std::vector<ApplyRule::Ptr> emptyList;
 		return emptyList;
 	}
 	return it->second;
@@ -144,10 +144,10 @@ std::vector<ApplyRule>& ApplyRule::GetRules(const String& type)
 void ApplyRule::CheckMatches(bool silent)
 {
 	for (const RuleMap::value_type& kv : m_Rules) {
-		for (const ApplyRule& rule : kv.second) {
-			if (!rule.HasMatches() && !silent)
+		for (const ApplyRule::Ptr& rule : kv.second) {
+			if (!rule->HasMatches() && !silent)
 				Log(LogWarning, "ApplyRule")
-					<< "Apply rule '" << rule.GetName() << "' (" << rule.GetDebugInfo() << ") for type '" << kv.first << "' does not match anywhere!";
+					<< "Apply rule '" << rule->GetName() << "' (" << rule->GetDebugInfo() << ") for type '" << kv.first << "' does not match anywhere!";
 		}
 	}
 }
