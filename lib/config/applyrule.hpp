@@ -13,9 +13,11 @@ namespace icinga
 /**
  * @ingroup config
  */
-class ApplyRule
+class ApplyRule : public SharedObject
 {
 public:
+	DECLARE_PTR_TYPEDEFS(ApplyRule);
+
 	typedef std::map<String, std::vector<String> > TypeMap;
 	typedef std::map<String, std::vector<ApplyRule> > RuleMap;
 
