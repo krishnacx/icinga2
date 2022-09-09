@@ -221,6 +221,7 @@ private:
 	// concurrent access like from the icingadb check command. It's a copy to still allow fast access without additional
 	// syncronization to m_Rcon within the IcingaDB feature itself.
 	Locked<RedisConnection::Ptr> m_RconLocked;
+	RedisConnection::Ptr m_RconHistory;
 	std::unordered_map<ConfigType*, RedisConnection::Ptr> m_Rcons;
 	std::atomic_size_t m_PendingRcons;
 
