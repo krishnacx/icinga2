@@ -82,6 +82,10 @@ void IcingaDB::Start(bool runtimeCreated)
 		GetTlsProtocolmin(), GetCipherList(), GetConnectTimeout(), GetDebugInfo());
 	m_RconLocked.store(m_Rcon);
 
+	m_RconHistory = new RedisConnection(GetHost(), GetPort(), GetPath(), GetPassword(), GetDbIndex(),
+		GetEnableTls(), GetInsecureNoverify(), GetCertPath(), GetKeyPath(), GetCaPath(), GetCrlPath(),
+		GetTlsProtocolmin(), GetCipherList(), GetConnectTimeout(), GetDebugInfo(), m_Rcon);
+
 	for (const Type::Ptr& type : GetTypes()) {
 		auto ctype (dynamic_cast<ConfigType*>(type.get()));
 		if (!ctype)
