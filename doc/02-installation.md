@@ -163,14 +163,13 @@ dnf install https://packages.icinga.com/fedora/icinga-rpm-release-$(. /etc/os-re
     A paid repository subscription is required for SLES repositories. Get more information on
     [icinga.com/subscription](https://icinga.com/subscription)
 
-    Don't forget to fill in the username and password section with your credentials in the local .repo file.
-
 ```bash
 rpm --import https://packages.icinga.com/icinga.key
 
-zypper ar https://packages.icinga.com/subscription/sles/ICINGA-release.repo
+zypper ar -r https://packages.icinga.com/subscription/sles/$releasever/release/ icinga-stable-release
 zypper ref
 ```
+After this, zypper asks you to enter your subscription user name and password. 
 
 You need to additionally add the `PackageHub` repository to fulfill dependencies:
 
