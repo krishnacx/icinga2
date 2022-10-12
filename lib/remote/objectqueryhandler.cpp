@@ -190,7 +190,7 @@ bool ObjectQueryHandler::HandleRequest(
 		joinAttrs.insert(field.Name);
 	}
 
-	std::unordered_map<Type*, std::pair<bool, Expression::Ptr>> typePermissions;
+	std::unordered_map<Type*, std::pair<bool, std::unique_ptr<Expression>>> typePermissions;
 	std::unordered_map<Object*, bool> objectAccessAllowed;
 
 	for (const ConfigObject::Ptr& obj : objs) {
@@ -262,23 +262,19 @@ bool ObjectQueryHandler::HandleRequest(
 				continue;
 
 			Type::Ptr reflectionType = joinedObj->GetReflectionType();
-			Expression::Ptr permissionFilter;
-
 			auto it = typePermissions.find(reflectionType.get());
 			bool granted;
 
 			if (it == typePermissions.end()) {
 				String permission = "objects/query/" + reflectionType->GetName();
 
-				Expression *filter = nullptr;
-				granted = FilterUtility::HasPermission(user, permission, &filter);
-				permissionFilter = filter;
+				std::unique_ptr<Expression> permissionFilter;
+				granted = FilterUtility::HasPermission(user, permission, &permissionFilter);
 
-				typePermissions.insert({reflectionType.get(), std::make_pair(granted, permissionFilter)});
-			} else {
-				std::tie(granted, permissionFilter) = it->second;
+				it = typePermissions.insert({reflectionType.get(), std::make_pair(granted, std::move(permissionFilter))}).first;
 			}
 
+			granted = it->second.first;
 			if (!granted) {
 				// Not authorized
 				continue;
@@ -291,7 +287,7 @@ bool ObjectQueryHandler::HandleRequest(
 				ScriptFrame permissionFrame(false, new Namespace());
 
 				try {
-					accessAllowed = FilterUtility::EvaluateFilter(permissionFrame, permissionFilter.get(), joinedObj);
+					accessAllowed = FilterUtility::EvaluateFilter(permissionFrame, it->second.second.get(), joinedObj);
 				} catch (const ScriptError& err) {
 					accessAllowed = false;
 				}
