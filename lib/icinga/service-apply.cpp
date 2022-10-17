@@ -123,7 +123,12 @@ void Service::EvaluateApplyRules(const Host::Ptr& host)
 {
 	CONTEXT("Evaluating 'apply' rules for host '" + host->GetName() + "'");
 
-	for (ApplyRule& rule : ApplyRule::GetRules("Service")) {
+	for (auto& rule : ApplyRule::GetRules(Service::TypeInstance, Host::TypeInstance)) {
+		if (EvaluateApplyRule(host, rule))
+			rule.AddMatch();
+	}
+
+	for (auto& rule : ApplyRule::GetRules(Service::TypeInstance, nullptr)) {
 		if (EvaluateApplyRule(host, rule))
 			rule.AddMatch();
 	}
