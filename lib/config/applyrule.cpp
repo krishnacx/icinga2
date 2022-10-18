@@ -75,9 +75,12 @@ void ApplyRule::AddRule(const String& sourceType, const String& targetType, cons
 	const Expression::Ptr& expression, const Expression::Ptr& filter, const String& package, const String& fkvar,
 	const String& fvvar, const Expression::Ptr& fterm, bool ignoreOnError, const DebugInfo& di, const Dictionary::Ptr& scope)
 {
-	m_Rules[Type::GetByName(sourceType).get()][Type::GetByName(targetType).get()].emplace_back(ApplyRule(
-		targetType, name, expression, filter, package, fkvar, fvvar, fterm, ignoreOnError, di, scope
-	));
+	ApplyRule rule (targetType, name, expression, filter, package, fkvar, fvvar, fterm, ignoreOnError, di, scope);
+	auto& rules (m_Rules[Type::GetByName(sourceType).get()][Type::GetByName(targetType).get()]);
+
+	if (!AddTargetedRule(rule, sourceType, rules)) {
+		rules.Regular.emplace_back(std::move(rule));
+	}
 }
 
 bool ApplyRule::EvaluateFilter(ScriptFrame& frame) const
@@ -141,7 +144,7 @@ std::vector<ApplyRule>& ApplyRule::GetRules(const Type::Ptr& sourceType, const T
 		auto perTargetType (perSourceType->second.find(targetType.get()));
 
 		if (perTargetType != perSourceType->second.end()) {
-			return perTargetType->second;
+			return perTargetType->second.Regular;
 		}
 	}
 
@@ -153,7 +156,7 @@ void ApplyRule::CheckMatches(bool silent)
 {
 	for (auto& perSourceType : m_Rules) {
 		for (auto& perTargetType : perSourceType.second) {
-			for (auto& rule : perTargetType.second) {
+			for (auto& rule : perTargetType.second.Regular) {
 				if (!rule.HasMatches() && !silent) {
 					Log(LogWarning, "ApplyRule")
 						<< "Apply rule '" << rule.GetName() << "' (" << rule.GetDebugInfo() << ") for type '"

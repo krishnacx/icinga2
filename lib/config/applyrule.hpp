@@ -21,8 +21,20 @@ class ApplyRule : public SharedObject
 public:
 	DECLARE_PTR_TYPEDEFS(ApplyRule);
 
+	struct PerHost
+	{
+		std::vector<ApplyRule::Ptr> ForHost;
+		std::unordered_map<String /* service */, std::vector<ApplyRule::Ptr>> ForServices;
+	};
+
+	struct PerTypes
+	{
+		std::vector<ApplyRule> Regular;
+		std::unordered_map<String /* host */, PerHost> Targeted;
+	};
+
 	typedef std::map<String, std::vector<String> > TypeMap;
-	typedef std::unordered_map<Type*, std::unordered_map<Type*, std::vector<ApplyRule>>> RuleMap;
+	typedef std::unordered_map<Type* /* source type */, std::unordered_map<Type* /* target type */, PerTypes>> RuleMap;
 
 	String GetTargetType() const;
 	String GetName() const;
@@ -44,6 +56,8 @@ public:
 		const Expression::Ptr& filter, const String& package, const String& fkvar, const String& fvvar, const Expression::Ptr& fterm,
 		bool ignoreOnError, const DebugInfo& di, const Dictionary::Ptr& scope);
 	static std::vector<ApplyRule>& GetRules(const Type::Ptr& sourceType, const Type::Ptr& targetType);
+	static const std::vector<ApplyRule::Ptr>& GetTargetedHostRules(const Type::Ptr& sourceType, const Type::Ptr& targetType, const String& host);
+	static const std::vector<ApplyRule::Ptr>& GetTargetedServiceRules(const Type::Ptr& sourceType, const Type::Ptr& targetType, const String& host, const String& service);
 
 	static void RegisterType(const String& sourceType, const std::vector<String>& targetTypes);
 	static bool IsValidSourceType(const String& sourceType);
@@ -68,6 +82,14 @@ private:
 
 	static TypeMap m_Types;
 	static RuleMap m_Rules;
+
+	static bool AddTargetedRule(ApplyRule& rule, const String& sourceType, ApplyRule::PerTypes& rules);
+	static bool GetTargetHosts(Expression* assignFilter, std::vector<const String *>& hosts);
+	static bool GetTargetServices(Expression* assignFilter, std::vector<std::pair<const String *, const String *>>& services);
+	static std::pair<const String *, const String *> GetTargetService(Expression* assignFilter);
+	static const String * GetComparedName(Expression* assignFilter, const char * lcType);
+	static bool IsNameIndexer(Expression* exp, const char * lcType);
+	static const String * GetLiteralStringValue(Expression* exp);
 
 	ApplyRule(String targetType, String name, Expression::Ptr expression,
 		Expression::Ptr filter, String package, String fkvar, String fvvar, Expression::Ptr fterm,
